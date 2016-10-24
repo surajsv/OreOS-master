@@ -1,0 +1,41 @@
+Execute
+	1) Parse
+		"cat frame0.txt"
+		Handle error : blank screen
+	2) Executable Check
+		Check if the file exists or not (e.g. chcek if cat exists otherwise return -1)
+			open file (using what you wrote in MP 3.2)
+			check for ELF (byte 24 - 27) if it is ELF then it is an executable file otherwise stop executing
+			Error handling : if doesn't exist return , if not executable return
+	3) Paging
+		Set up new page directory / page table to map the virtual memory to page address : Process 0: 8 MB - 12 MB , Process 1: 12 MB - 16 MB .... Load CR3 , TLB will flush automatically 
+	4) File Loader
+		 Get the EIP , copy file you have found to physical memory , 8 MB + offset, 12 MB + offset ... memcopy copy file contents to the assigned physical address
+		 Error handling : Check if EIP is in a value range or not , when you start copying the file check if read file succeeds or not
+	5) PCB
+		New file descriptor
+		open stin (read only) && stout (write only) (terminal read and write)
+		Record parent info (shell -> dog -> cat) shell creates process dog which creates child process cat , cat must return back to dog which must return to shell (Do not close your terminal thats an error)
+	6) Context Switch
+		Write to TSS : esp0, ss0 everytime on a context switch (the 0 means the privledge level)
+		8 MB - 8kB * N - 4 (Kernel stack pointer)
+		Process 0 8kB, Process 1, 8kB
+		Push everything onto the stack (pushl esp0) & IRET context => (user)(esp)
+			-> execute program is user space , call halt()
+			-> go to system program halt :
+				inside halt :
+					swap the stacks from the child process to the parent proces (so you obtain parent information)
+					now that you have everything it will seem like you never left
+					next jump back to label in the parent process
+	User Program : Virtual Address 128 MB -> 132 MB
+	User Stack : Starts from the bottom 132 MB and grows upward to the 128 MB
+
+
+Checkpoint 4
+
+1. int32 t halt (uint8 t status);
+7. int32 t getargs (uint8 t* buf, int32 t nbytes);
+8. int32 t vidmap (uint8 t** screen start);
+9. int32 t set_handler (int32 t signum, void* handler address);1
+10. int32 t sigreturn (void);2
+
